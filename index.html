@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GCS Calculator</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#1e40af">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="GCS Calc">
+  <link rel="icon" href="https://placehold.co/192x192/1e40af/ffffff?text=GCS">
+</head>
+<body class="bg-slate-950 text-white min-h-screen">
+  <div class="max-w-md mx-auto p-6">
+    <div class="flex justify-between items-center mb-8">
+      <h1 class="text-3xl font-bold">Glasgow Coma Scale</h1>
+      <button onclick="toggleDark()" id="themeBtn" 
+              class="px-4 py-2 bg-slate-800 rounded-2xl text-sm">☀️</button>
+    </div>
+
+    <!-- Eye -->
+    <div class="mb-8">
+      <h2 class="text-lg font-semibold mb-3 text-sky-400">Eye Opening</h2>
+      <div class="grid grid-cols-4 gap-3">
+        <button onclick="setScore('eye',4)" id="eye4" class="score-btn active">4<br><span class="text-xs">Spontaneous</span></button>
+        <button onclick="setScore('eye',3)" id="eye3" class="score-btn">3<br><span class="text-xs">To speech</span></button>
+        <button onclick="setScore('eye',2)" id="eye2" class="score-btn">2<br><span class="text-xs">To pain</span></button>
+        <button onclick="setScore('eye',1)" id="eye1" class="score-btn">1<br><span class="text-xs">None</span></button>
+      </div>
+    </div>
+
+    <!-- Verbal -->
+    <div class="mb-8">
+      <h2 class="text-lg font-semibold mb-3 text-sky-400">Verbal Response</h2>
+      <div class="grid grid-cols-5 gap-3">
+        <button onclick="setScore('verbal',5)" id="verbal5" class="score-btn active">5<br><span class="text-xs">Oriented</span></button>
+        <button onclick="setScore('verbal',4)" id="verbal4" class="score-btn">4<br><span class="text-xs">Confused</span></button>
+        <button onclick="setScore('verbal',3)" id="verbal3" class="score-btn">3<br><span class="text-xs">Inappropriate</span></button>
+        <button onclick="setScore('verbal',2)" id="verbal2" class="score-btn">2<br><span class="text-xs">Incomprehensible</span></button>
+        <button onclick="setScore('verbal',1)" id="verbal1" class="score-btn">1<br><span class="text-xs">None</span></button>
+      </div>
+    </div>
+
+    <!-- Motor -->
+    <div class="mb-8">
+      <h2 class="text-lg font-semibold mb-3 text-sky-400">Motor Response</h2>
+      <div class="grid grid-cols-6 gap-2 text-xs">
+        <button onclick="setScore('motor',6)" id="motor6" class="score-btn active col-span-2">6<br><span>Obeys commands</span></button>
+        <button onclick="setScore('motor',5)" id="motor5" class="score-btn col-span-2">5<br><span>Localizes pain</span></button>
+        <button onclick="setScore('motor',4)" id="motor4" class="score-btn">4<br><span>Withdraws</span></button>
+        <button onclick="setScore('motor',3)" id="motor3" class="score-btn">3<br><span>Abnormal flexion</span></button>
+        <button onclick="setScore('motor',2)" id="motor2" class="score-btn">2<br><span>Extension</span></button>
+        <button onclick="setScore('motor',1)" id="motor1" class="score-btn">1<br><span>None</span></button>
+      </div>
+    </div>
+
+    <!-- Result -->
+    <div class="bg-slate-900 rounded-3xl p-8 text-center mb-8">
+      <p class="text-slate-400 text-sm mb-2">TOTAL SCORE</p>
+      <div id="total" class="text-8xl font-bold text-emerald-400">15</div>
+      <div id="interpretation" class="mt-4 text-xl font-medium">Fully conscious</div>
+    </div>
+
+    <button onclick="resetToNormal()" 
+            class="w-full py-4 bg-sky-600 hover:bg-sky-700 rounded-2xl font-semibold text-lg">
+      Reset to Normal (15)
+    </button>
+
+    <div class="mt-12 text-center text-xs text-slate-500">
+      Educational tool only • Always verify with clinical findings<br>
+      Built in 5 min by you + Grok 🔥
+    </div>
+  </div>
+
+  <script>
+    let scores = { eye: 4, verbal: 5, motor: 6 };
+
+    const colors = {
+      15: { text: 'text-emerald-400', label: 'Fully conscious' },
+      13: { text: 'text-lime-400', label: 'Mild impairment' },
+      9:  { text: 'text-amber-400', label: 'Moderate impairment' },
+      3:  { text: 'text-red-400', label: 'Severe coma — urgent' }
+    };
+
+    function getColorAndLabel(total) {
+      if (total >= 13) return colors[13];
+      if (total >= 9) return colors[9];
+      return colors[3];
+    }
+
+    function calculate() {
+      const total = scores.eye + scores.verbal + scores.motor;
+      document.getElementById('total').textContent = total;
+      
+      const info = getColorAndLabel(total);
+      document.getElementById('total').className = `text-8xl font-bold ${info.text}`;
+      document.getElementById('interpretation').textContent = info.label;
+    }
+
+    function setScore(category, value) {
+      scores[category] = value;
+      renderActiveButtons();
+      calculate();
+    }
+
+    function renderActiveButtons() {
+      // Eye
+      for (let i=1; i<=4; i++) {
+        const btn = document.getElementById(`eye${i}`);
+        if (btn) btn.classList.toggle('active', scores.eye === i);
+      }
+      // Verbal
+      for (let i=1; i<=5; i++) {
+        const btn = document.getElementById(`verbal${i}`);
+        if (btn) btn.classList.toggle('active', scores.verbal === i);
+      }
+      // Motor
+      for (let i=1; i<=6; i++) {
+        const btn = document.getElementById(`motor${i}`);
+        if (btn) btn.classList.toggle('active', scores.motor === i);
+      }
+    }
+
+    function resetToNormal() {
+      scores = { eye: 4, verbal: 5, motor: 6 };
+      renderActiveButtons();
+      calculate();
+    }
+
+    function toggleDark() {
+      document.documentElement.classList.toggle('dark');
+      const btn = document.getElementById('themeBtn');
+      btn.textContent = document.documentElement.classList.contains('dark') ? '☀️' : '🌙';
+    }
+
+    // Tailwind script already loaded
+    window.onload = () => {
+      renderActiveButtons();
+      calculate();
+      
+      // Register service worker
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/sw.js');
+      }
+    };
+
+    // Basic Tailwind styles for buttons
+    const style = document.createElement('style');
+    style.textContent = `
+      .score-btn {
+        @apply bg-slate-800 hover:bg-slate-700 py-3 rounded-2xl text-center transition-all text-sm font-medium border border-transparent;
+      }
+      .score-btn.active {
+        @apply bg-sky-600 border-sky-400 text-white scale-105;
+      }
+    `;
+    document.head.appendChild(style);
+  </script>
+</body>
+</html>
